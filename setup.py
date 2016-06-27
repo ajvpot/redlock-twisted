@@ -66,30 +66,30 @@ THE SOFTWARE.
 """
 
 setup(
-    name='redlock-py',
-    version='1.0.8',
-    packages=find_packages(),
-    include_package_data=True,
-    description='Redis locking mechanism',
-    long_description=README,
-    url='https://github.com/SPSCommerce/identity-service',
-    classifiers=[
-        'Development Status :: 5 - Production/Stable',
-        'Intended Audience :: Developers',
-        'License :: OSI Approved :: MIT License',
-        'Programming Language :: Python :: 2.6',
-        'Programming Language :: Python :: 2.7',
-        'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.2',
-        'Programming Language :: Python :: 3.3',
-        'Programming Language :: Python :: 3.4'
-    ],
-    author='pjdecoursey@spscommerce.com',
-    author_email='webapps@spscommerce.com',
-    install_requires=["redis"],
-    entry_points={
-        'console_scripts': [
-            'redlock = redlock.cli:main',
-        ],
-    }
+	name='redlock-py',
+	version='1.0.8',
+	packages=find_packages(),
+	include_package_data=True,
+	description='Redis locking mechanism',
+	long_description=README,
+	url='https://github.com/SPSCommerce/identity-service',
+	classifiers=[
+		'Development Status :: 5 - Production/Stable',
+		'Intended Audience :: Developers',
+		'License :: OSI Approved :: MIT License',
+		'Programming Language :: Python :: 2.6',
+		'Programming Language :: Python :: 2.7',
+		'Programming Language :: Python :: 3',
+		'Programming Language :: Python :: 3.2',
+		'Programming Language :: Python :: 3.3',
+		'Programming Language :: Python :: 3.4'
+	],
+	author='pjdecoursey@spscommerce.com',
+	author_email='webapps@spscommerce.com',
+	install_requires=["redis"],
+	entry_points={
+		'console_scripts': [
+			'redlock = redlock.cli:main',
+		],
+	}
 )
