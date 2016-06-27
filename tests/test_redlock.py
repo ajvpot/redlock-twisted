@@ -1,37 +1,42 @@
-import unittest
+from twisted.internet.defer import inlineCallbacks, DeferredList
+from twisted.trial import unittest
 
-from redlock import Redlock, MultipleRedlockException
+from txredlock import Redlock, MultipleRedlockException
 
 
 class TestRedlock(unittest.TestCase):
+	@inlineCallbacks
 	def setUp(self):
-		self.redlock = Redlock([{"host": "localhost"}])
+		self.redlock = Redlock([{}])
+		yield self.redlock.connect()
 
+	@inlineCallbacks
+	def tearDown(self):
+		dl = DeferredList([x.disconnect() for x in self.redlock.servers])
+		yield dl
+
+	def test_connected(self):
+		self.assertGreater(len(self.redlock.servers), 0)
+
+	@inlineCallbacks
 	def test_lock(self):
-		lock = self.redlock.lock("pants", 100)
+		lock = yield self.redlock.lock("pants", 100)
 		self.assertEqual(lock.resource, "pants")
-		self.redlock.unlock(lock)
-		lock = self.redlock.lock("pants", 10)
-		self.redlock.unlock(lock)
+		yield self.redlock.unlock(lock)
+		lock = yield self.redlock.lock("pants", 10)
+		yield self.redlock.unlock(lock)
 
+	@inlineCallbacks
 	def test_blocked(self):
-		lock = self.redlock.lock("pants", 1000)
-		bad = self.redlock.lock("pants", 10)
+		lock = yield self.redlock.lock("pants", 1000)
+		bad = yield self.redlock.lock("pants", 10)
 		self.assertFalse(bad)
-		self.redlock.unlock(lock)
+		yield self.redlock.unlock(lock)
 
-	def test_bad_connection_info(self):
-		with self.assertRaises(Warning):
-			Redlock([{"cat": "hog"}])
-
-	def test_py3_compatible_encoding(self):
-		lock = self.redlock.lock("pants", 1000)
-		key = self.redlock.servers[0].get("pants")
-		self.assertEquals(lock.key, key)
-
+	@inlineCallbacks
 	def test_ttl_not_int_trigger_exception_value_error(self):
 		with self.assertRaises(ValueError):
-			self.redlock.lock("pants", 1000.0)
+			yield self.redlock.lock("pants", 1000.0)
 
 	def test_multiple_redlock_exception(self):
 		ex1 = Exception("Redis connection error")

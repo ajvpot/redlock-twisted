@@ -4,7 +4,7 @@ import argparse
 import sys
 import textwrap
 
-import redlock
+import txredlock
 
 
 def log(*args, **kwargs):
@@ -21,7 +21,7 @@ def lock(name, validity, redis, retry_count=3, retry_delay=200, **kwargs):
 
 	while True:
 		try:
-			dlm = redlock.Redlock(redis, retry_count=retry_count + 1, retry_delay=retry_delay / 1000.0)
+			dlm = txredlock.Redlock(redis, retry_count=retry_count + 1, retry_delay=retry_delay / 1000.0)
 			lock = dlm.lock(name, validity)
 
 			if lock is False:
@@ -44,8 +44,8 @@ def lock(name, validity, redis, retry_count=3, retry_delay=200, **kwargs):
 
 def unlock(name, key, redis, **kwargs):
 	try:
-		dlm = redlock.Redlock(redis)
-		lock = redlock.Lock(0, name, key)
+		dlm = txredlock.Redlock(redis)
+		lock = txredlock.Lock(0, name, key)
 		dlm.unlock(lock)
 	except Exception as e:
 		log("Error: %s" % e)
