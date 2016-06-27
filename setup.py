@@ -6,18 +6,24 @@ from setuptools import setup, find_packages
 os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
 
 README = """
-txredlock - Redis distributed locks in Python - Now with more
+txredlock - Redis distributed locks in Python - Now with more deferreds!
 
-This python lib implements the Redis-based distributed lock manager algorithm
-[described in this blog post](http://antirez.com/news/77).
+**Warning**: This project is incomplete. Although you can acquire a lock through a deferred, the Deferred will still contact each Redis server one by one. I would like to change this so that it attempts to acquire locks on all Redis servers simultaneously.
+
+This twisted python lib implements the Redis-based distributed lock manager algorithm [described in this blog post](http://redis.io/topics/distlock).
 
 To create a lock manager:
 
-    dlm = Redlock([{"host": "localhost", "port": 6379, "db": 0}, ])
+	@inlineCallbacks
+	def setupRedlock():
+		dlm = Redlock([{"host": "localhost", "port": 6379, "db": 0}, ])
+		yield dlm.connect()
 
 To acquire a lock:
 
-    my_lock = dlm.lock("my_resource_name",1000)
+	@inlineCallbacks
+	def getLock():
+		my_lock = yield dlm.lock("my_resource_name",1000)
 
 Where the resource name is an unique identifier of what you are trying to lock
 and 1000 is the number of milliseconds for the validity time.
@@ -31,19 +37,26 @@ otherwise an namedtuple representing the lock is returned, having three fields:
 
 To release a lock:
 
-    dlm.unlock(my_lock)
+	@inlineCallbacks
+	def releaseLock(my_lock):
+		yield dlm.unlock(my_lock)
 
 It is possible to setup the number of retries (by default 3) and the retry
 delay (by default 200 milliseconds) used to acquire the lock.
 
 
-**Disclaimer**: This code implements an algorithm which is currently a proposal,
-it was not formally analyzed. Make sure to understand how it works before using it
-in your production environments.
+Both `dlm.lock` and `dlm.unlock` raise a exception `MultipleRedlockException` if there are errors when communicating with one or more redis masters. The caller of `dlm` should
+use a try-catch-finally block to handle this exception. A `MultipleRedlockException` object
+encapsulates multiple `redis-py.exceptions.RedisError` objects.
+
+
+**Disclaimer**: This code implements an algorithm which is currently a proposal, it was not formally analyzed. Make sure to understand how it works before using it in your production environments.
+
 
 The MIT License (MIT)
 
 Copyright (c) 2014 SPS Commerce, Inc.
+Copyright (c) 2016 Alex Vanderpot.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

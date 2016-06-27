@@ -2,6 +2,11 @@ txredlock - Redis distributed locks in Python - Now with more deferreds!
 
 **Warning**: This project is incomplete. Although you can acquire a lock through a deferred, the Deferred will still contact each Redis server one by one. I would like to change this so that it attempts to acquire locks on all Redis servers simultaneously.
 
+ToDo
+----
+* Update CLI to use Twisted
+* Make locks contact servers concurrently
+
 This twisted python lib implements the Redis-based distributed lock manager algorithm [described in this blog post](http://redis.io/topics/distlock).
 
 To create a lock manager:
