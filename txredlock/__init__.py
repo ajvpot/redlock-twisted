@@ -94,7 +94,7 @@ class Redlock(object):
 	@inlineCallbacks
 	def unlock_instance(self, server, resource, val):
 		try:
-			yield server.eval(self.unlock_script, (resource), (val))
+			yield server.eval(self.unlock_script, [resource], [val])
 		except Exception as e:
 			print "Error unlocking resource %s in server %s", resource, str(server)
 

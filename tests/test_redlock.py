@@ -20,16 +20,17 @@ class TestRedlock(unittest.TestCase):
 
 	@inlineCallbacks
 	def test_lock(self):
-		lock = yield self.redlock.lock("pants", 100)
+		lock = yield self.redlock.lock("pants", 10000)
 		self.assertEqual(lock.resource, "pants")
 		yield self.redlock.unlock(lock)
-		lock = yield self.redlock.lock("pants", 10)
+		lock = yield self.redlock.lock("pants", 10000)
+		self.assertEqual(lock.resource, "pants")
 		yield self.redlock.unlock(lock)
 
 	@inlineCallbacks
 	def test_blocked(self):
-		lock = yield self.redlock.lock("pants", 1000)
-		bad = yield self.redlock.lock("pants", 10)
+		lock = yield self.redlock.lock("pants", 10000)
+		bad = yield self.redlock.lock("pants", 10000)
 		self.assertFalse(bad)
 		yield self.redlock.unlock(lock)
 
