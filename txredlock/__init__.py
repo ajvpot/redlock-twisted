@@ -23,6 +23,9 @@ Lock = namedtuple("Lock", ("validity", "resource", "key"))
 class CannotObtainLock(Exception):
 	pass
 
+class RedlockNotConnectedException(Exception):
+	pass
+
 def tsleep(secs):
 	d = Deferred()
 	reactor.callLater(secs, d.callback, None)
@@ -55,6 +58,7 @@ class Redlock(object):
 		self.connection_list = connection_list
 		self.retry_count = retry_count or self.default_retry_count
 		self.retry_delay = retry_delay or self.default_retry_delay
+		self.servers = None
 
 	def connect(self):
 		self.servers = []
@@ -104,6 +108,8 @@ class Redlock(object):
 
 	@inlineCallbacks
 	def lock(self, resource, ttl):
+		if self.servers is None:
+			raise RedlockNotConnectedException()
 		retry = 0
 		val = self.get_unique_id()
 
@@ -141,6 +147,8 @@ class Redlock(object):
 
 	@inlineCallbacks
 	def unlock(self, lock):
+		if self.servers is None:
+			raise RedlockNotConnectedException()
 		redis_errors = []
 		for server in self.servers:
 			try:

@@ -1,7 +1,7 @@
 from twisted.internet.defer import inlineCallbacks, DeferredList
 from twisted.trial import unittest
 
-from txredlock import Redlock, MultipleRedlockException
+from txredlock import Redlock, MultipleRedlockException, RedlockNotConnectedException
 
 
 class TestRedlock(unittest.TestCase):
@@ -38,6 +38,13 @@ class TestRedlock(unittest.TestCase):
 	def test_ttl_not_int_trigger_exception_value_error(self):
 		with self.assertRaises(ValueError):
 			yield self.redlock.lock("pants", 1000.0)
+
+	@inlineCallbacks
+	def test_not_connected_exception(self):
+		rl = Redlock([{}])
+		with self.assertRaises(RedlockNotConnectedException):
+			yield rl.lock("pants", 10000)
+
 
 	def test_multiple_redlock_exception(self):
 		ex1 = Exception("Redis connection error")
